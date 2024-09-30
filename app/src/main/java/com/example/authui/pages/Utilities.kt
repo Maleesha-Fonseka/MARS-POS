@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.authui.R
 import com.example.authui.pages.ValidationUtils
+
 
 @Composable
 fun ScreenDetails(title: String, message: String, modifier: Modifier = Modifier) {
@@ -188,32 +190,25 @@ fun ScreenTabs() {
     }
 }
 
-@Composable
-fun CheckboxWithText () {
-    var checked by remember { mutableStateOf(true) }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = { checked = it },
-            Modifier.size(32 .dp)
-        )
-        Text(
-            "Remember me",
-            color = colorResource(R.color.darkTeal),
-            fontWeight = FontWeight(700),
-            fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.End,
-        )
-    }
-}
 
 @Composable
 fun LoginForm() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberMe by remember {
+        mutableStateOf(false)
+    }
+
+    // Retrieve credentials if "Remember Me" was checked previously
+    LaunchedEffect(Unit) {
+        if (SecureStorage.hasCredentials()) {
+            val (storedEmail, storedPassword) = SecureStorage.getCredentials()!!
+            email = storedEmail
+            password = storedPassword
+            rememberMe = true
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
@@ -271,7 +266,15 @@ fun LoginForm() {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CheckboxWithText()
+                Checkbox(
+                    checked = rememberMe,
+                    onCheckedChange = { rememberMe = it }
+                )
+                Text(
+                    text = "Remember me",
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+
                 ClickableText(
                     text = AnnotatedString("Forget Password ?"),
                     onClick = {
@@ -294,7 +297,13 @@ fun LoginForm() {
 
         Button(
             onClick = {
-                //ToDo: Login Functionality
+                // Save credentials if Remember Me is checked
+                if (rememberMe) {
+                    SecureStorage.storeCredentials(email, password)
+                } else {
+                    SecureStorage.clearCredentials()
+                }
+                // TODO: Handle login functionality
             },
             colors = ButtonDefaults.buttonColors(colorResource(R.color.darkTeal)),
             shape = RoundedCornerShape(10.dp),
