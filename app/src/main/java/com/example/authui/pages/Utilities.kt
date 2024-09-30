@@ -23,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -354,12 +357,16 @@ fun SignUpForm() {
 
                     )
                 },
-
+                textStyle = TextStyle(
+                    color = colorResource(R.color.OffWhite)
+                ),
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
             )
-
+            if (!isEmailValid) {
+                Text(text = "Invalid email address", color= Color.Red)
+            }
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
@@ -385,12 +392,17 @@ fun SignUpForm() {
                         contentDescription = "Password Icon"
                     )
                 },
+                textStyle = TextStyle(
+                    color = colorResource(R.color.OffWhite)
+                ),
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
             )
-
+            if (!isPasswordValid) {
+                Text(text = "Password must meet requirements", color = Color.Red)
+            }
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
@@ -399,6 +411,7 @@ fun SignUpForm() {
                     rePassword = it
                     isRePasswordValid = ValidationUtils.isValidRepassword(it, password)
                 },
+                isError = !isRePasswordValid,
                 label = {
                     Text(
                         text = "Confirm Password",
@@ -415,11 +428,19 @@ fun SignUpForm() {
                         contentDescription = "Password Icon"
                     )
                 },
+                textStyle = TextStyle(
+                    color = colorResource(R.color.OffWhite)
+                ),
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
             )
+            if (!isRePasswordValid) {
+                Text(
+                    text = "Passwords do not match",
+                    color = Color.Red)
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -431,7 +452,7 @@ fun SignUpForm() {
                     // Proceed with login/registration
                 }
             },
-            enabled = isEmailValid && isPasswordValid,
+            enabled = isEmailValid && isPasswordValid && isRePasswordValid,
             colors = ButtonDefaults.buttonColors(colorResource(R.color.OffWhite)),
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
@@ -444,15 +465,6 @@ fun SignUpForm() {
                 fontWeight = FontWeight(700),
                 fontStyle = FontStyle.Italic
             )
-        }
-        if (!isEmailValid) {
-            Text(text = "Invalid email address", color= Color.Red)
-        }
-        if (!isPasswordValid) {
-            Text(text = "Password must meet requirements", color = Color.Red)
-        }
-        if (!isRePasswordValid) {
-            Text(text = "Passwords do not match", color = Color.Red)
         }
     }
 }
