@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.authui.R
+import com.example.authui.pages.ValidationUtils
 
 @Composable
 fun ScreenDetails(title: String, message: String, modifier: Modifier = Modifier) {
@@ -311,6 +313,10 @@ fun SignUpForm() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rePassword by remember { mutableStateOf("") }
+    var isEmailValid by remember { mutableStateOf(true) }
+    var isPasswordValid by remember { mutableStateOf(true) }
+    var isRePasswordValid by remember { mutableStateOf(true) }
+
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
@@ -326,14 +332,16 @@ fun SignUpForm() {
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { newText ->
-                    email = newText
+                onValueChange = {
+                    email = it
+                    isEmailValid = ValidationUtils.isValidEmail(it)
                 },
                 label = {
                     Text(
                         text = "Email",
                         color = colorResource(R.color.OffWhite),
                     ) },
+                isError = !isEmailValid,
                 placeholder = {
                     Text(
                         text = "Enter your e-mail",
@@ -356,14 +364,16 @@ fun SignUpForm() {
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { newText ->
-                    password = newText.trim()
+                onValueChange = {
+                    password = it
+                    isPasswordValid = ValidationUtils.isValidPassword(it)
                 },
                 label = {
                     Text(
                         text = "Password",
                         color = colorResource(R.color.OffWhite)
                     ) },
+                isError = !isPasswordValid,
                 placeholder = {
                     Text(
                         text = "Enter password",
@@ -385,8 +395,9 @@ fun SignUpForm() {
 
             OutlinedTextField(
                 value = rePassword,
-                onValueChange = { newText ->
-                    rePassword = newText.trim()
+                onValueChange = {
+                    rePassword = it
+                    isRePasswordValid = ValidationUtils.isValidRepassword(it, password)
                 },
                 label = {
                     Text(
@@ -416,7 +427,11 @@ fun SignUpForm() {
         Button(
             onClick = {
                 //ToDo: Signup Functionality
+                if (isEmailValid && isPasswordValid && isRePasswordValid) {
+                    // Proceed with login/registration
+                }
             },
+            enabled = isEmailValid && isPasswordValid,
             colors = ButtonDefaults.buttonColors(colorResource(R.color.OffWhite)),
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
@@ -429,6 +444,15 @@ fun SignUpForm() {
                 fontWeight = FontWeight(700),
                 fontStyle = FontStyle.Italic
             )
+        }
+        if (!isEmailValid) {
+            Text(text = "Invalid email address", color= Color.Red)
+        }
+        if (!isPasswordValid) {
+            Text(text = "Password must meet requirements", color = Color.Red)
+        }
+        if (!isRePasswordValid) {
+            Text(text = "Passwords do not match", color = Color.Red)
         }
     }
 }
