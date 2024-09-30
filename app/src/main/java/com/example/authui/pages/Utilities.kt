@@ -24,6 +24,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.authui.R
+
 
 @Composable
 fun ScreenDetails(title: String, message: String, modifier: Modifier = Modifier) {
@@ -209,6 +211,20 @@ fun CheckboxWithText () {
 fun LoginForm() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberMe by remember {
+        mutableStateOf(false)
+    }
+
+    // Retrieve credentials if "Remember Me" was checked previously
+    LaunchedEffect(Unit) {
+        if (SecureStorage.hasCredentials()) {
+            val (storedEmail, storedPassword) = SecureStorage.getCredentials()!!
+            email = storedEmail
+            password = storedPassword
+            rememberMe = true
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
@@ -266,7 +282,15 @@ fun LoginForm() {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CheckboxWithText()
+                Checkbox(
+                    checked = rememberMe,
+                    onCheckedChange = { rememberMe = it }
+                )
+                Text(
+                    text = "Remember me",
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+
                 ClickableText(
                     text = AnnotatedString("Forget Password ?"),
                     onClick = {
@@ -289,7 +313,13 @@ fun LoginForm() {
 
         Button(
             onClick = {
-                //ToDo: Login Functionality
+                // Save credentials if Remember Me is checked
+                if (rememberMe) {
+                    SecureStorage.storeCredentials(email, password)
+                } else {
+                    SecureStorage.clearCredentials()
+                }
+                // TODO: Handle login functionality
             },
             colors = ButtonDefaults.buttonColors(colorResource(R.color.darkTeal)),
             shape = RoundedCornerShape(10.dp),
