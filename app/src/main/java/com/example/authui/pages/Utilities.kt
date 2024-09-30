@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.authui.R
 import com.example.authui.pages.ValidationUtils
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+
 
 @Composable
 fun ScreenDetails(title: String, message: String, modifier: Modifier = Modifier) {
@@ -188,32 +192,27 @@ fun ScreenTabs() {
     }
 }
 
-@Composable
-fun CheckboxWithText () {
-    var checked by remember { mutableStateOf(true) }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = { checked = it },
-            Modifier.size(32 .dp)
-        )
-        Text(
-            "Remember me",
-            color = colorResource(R.color.darkTeal),
-            fontWeight = FontWeight(700),
-            fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.End,
-        )
-    }
-}
 
 @Composable
 fun LoginForm() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberMe by remember {
+        mutableStateOf(false) }
+    var loginErrorMessage by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current // Retrieve context for Toast
+
+
+    // Retrieve credentials if "Remember Me" was checked previously
+    LaunchedEffect(Unit) {
+        if (SecureStorage.hasCredentials()) {
+            val (storedEmail, storedPassword) = SecureStorage.getCredentials()!!
+            email = storedEmail
+            password = storedPassword
+            rememberMe = true
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
@@ -233,7 +232,8 @@ fun LoginForm() {
                     email = newText
                 },
                 label = { Text(text = "Email") },
-                placeholder = { Text(text = "Enter your e-mail") },
+                placeholder = { Text(text = "Enter your e-mail",
+                    color = colorResource(R.color.midTeal)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
@@ -253,7 +253,9 @@ fun LoginForm() {
                     password = newText.trim()
                 },
                 label = { Text(text = "Password") },
-                placeholder = { Text(text = "Enter password") },
+                placeholder = { Text(text = "Enter password"
+                ,color = colorResource(R.color.midTeal) )
+                              },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
@@ -262,6 +264,7 @@ fun LoginForm() {
                 },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -271,7 +274,15 @@ fun LoginForm() {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CheckboxWithText()
+                Checkbox(
+                    checked = rememberMe,
+                    onCheckedChange = { rememberMe = it }
+                )
+                Text(
+                    text = "Remember me",
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+
                 ClickableText(
                     text = AnnotatedString("Forget Password ?"),
                     onClick = {
@@ -294,7 +305,25 @@ fun LoginForm() {
 
         Button(
             onClick = {
-                //ToDo: Login Functionality
+                if (email == "test@example.com" && password == "Password123") {
+                    // Successful login, store credentials if Remember Me is checked
+                    if (rememberMe) {
+                        SecureStorage.storeCredentials(email, password)
+                    } else {
+                        SecureStorage.clearCredentials()
+                    }
+                    loginErrorMessage = null
+                    // Display success Toast
+                    Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+
+                    // Navigate to home screen (you can implement a screen switch here)
+                    // TODO: Navigate to home screen
+                } else {
+                    // Failed login
+                    loginErrorMessage = "Invalid email or password. Please try again."
+                    // Display error Toast
+                    Toast.makeText(context, loginErrorMessage, Toast.LENGTH_SHORT).show()
+                }
             },
             colors = ButtonDefaults.buttonColors(colorResource(R.color.darkTeal)),
             shape = RoundedCornerShape(10.dp),
