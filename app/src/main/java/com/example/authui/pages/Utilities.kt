@@ -185,27 +185,6 @@ fun ScreenTabs() {
     }
 }
 
-@Composable
-fun CheckboxWithText () {
-    var checked by remember { mutableStateOf(true) }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = { checked = it },
-            Modifier.size(32 .dp)
-        )
-        Text(
-            "Remember me",
-            color = colorResource(R.color.darkTeal),
-            fontWeight = FontWeight(700),
-            fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.End,
-        )
-    }
-}
 
 @Composable
 fun LoginForm() {
