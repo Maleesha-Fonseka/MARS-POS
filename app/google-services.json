@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "789979009751",
+    "project_id": "authui-8d8b5",
+    "storage_bucket": "authui-8d8b5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789979009751:android:6301b8959c17e90b7c9692",
+        "android_client_info": {
+          "package_name": "com.example.authui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTqDMHAFs2nBF7m6GSTTUvI9a2rxayPxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

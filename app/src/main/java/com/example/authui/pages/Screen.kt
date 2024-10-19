@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.authui.R
 
 @Composable
-fun App() {
+fun App(navController: NavHostController, authViewModel: AuthViewModel) {
     Column(
         verticalArrangement = Arrangement.Top,
         modifier = Modifier
@@ -28,7 +30,7 @@ fun App() {
     ) {
         ScreenDetails(title = "Welcome Back", message = "Sign In with")
         GoogleButton()
-        ScreenTabs()
+        ScreenTabs(navController = navController, authViewModel = authViewModel)
     }
 }
 
@@ -39,6 +41,12 @@ fun App() {
 )
 
 @Composable
+//fun DefaultPreview() {val navController = rememberNavController( )
+//    val authViewModel = AuthViewModel() // or provide a mock AuthViewModel
+
 fun DefaultPreview() {
-    App()
+//    App()
+    val navController = rememberNavController()
+    val authViewModel = AuthViewModel() // or provide a mock AuthViewModel
+    App(navController = navController, authViewModel = authViewModel)
 }

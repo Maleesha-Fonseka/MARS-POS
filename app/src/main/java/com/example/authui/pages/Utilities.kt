@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -23,8 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,9 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.authui.R
-import com.example.authui.pages.ValidationUtils
 import android.widget.Toast
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 
 
 @Composable
@@ -137,7 +135,7 @@ fun GoogleButton() {
 }
 
 @Composable
-fun ScreenTabs() {
+fun ScreenTabs(modifier: Modifier = Modifier, navController: NavHostController,authViewModel:AuthViewModel) {
     var activeTab by remember { mutableStateOf("Login") }
 
     Column(
@@ -185,16 +183,16 @@ fun ScreenTabs() {
         }
 
         if (activeTab == "Login") {
-            LoginForm()
+            LoginForm(modifier, navController, authViewModel)
         } else {
-            SignUpForm()
+            SignUpForm(modifier, navController, authViewModel)
         }
     }
 }
 
 
 @Composable
-fun LoginForm() {
+fun LoginForm(modifier:Modifier=Modifier,navController: NavHostController,authViewModel:AuthViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember {
@@ -283,21 +281,7 @@ fun LoginForm() {
                     modifier = Modifier.padding(start = 8.dp)
                 )
 
-                ClickableText(
-                    text = AnnotatedString("Forget Password ?"),
-                    onClick = {
-                        // Handle forget password click
-                        // navigate to a forget password screen
-                    },
-                    style = LocalTextStyle.current.copy(
-                        color = colorResource(R.color.darkTeal),
-                        fontWeight = FontWeight(700),
-                        fontStyle = FontStyle.Italic,
-                        textAlign = TextAlign.End,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
+
             }
         }
 
@@ -341,13 +325,15 @@ fun LoginForm() {
 }
 
 @Composable
-fun SignUpForm() {
+fun SignUpForm(modifier:Modifier=Modifier,navController: NavHostController,authViewModel:AuthViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rePassword by remember { mutableStateOf("") }
     var isEmailValid by remember { mutableStateOf(true) }
     var isPasswordValid by remember { mutableStateOf(true) }
     var isRePasswordValid by remember { mutableStateOf(true) }
+
+    val authState=authViewModel.authState.observeAsState()
 
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -479,6 +465,8 @@ fun SignUpForm() {
                 //ToDo: Signup Functionality
                 if (isEmailValid && isPasswordValid && isRePasswordValid) {
                     // Proceed with login/registration
+                    authViewModel.signup(email,password)
+                    navController.navigate("home")
                 }
             },
             enabled = isEmailValid && isPasswordValid && isRePasswordValid,
